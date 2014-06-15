@@ -1,15 +1,20 @@
 while true;
 
-	do
+do
 
-		if [ -f 8545240_wl_24.png ];
+	if [ -f 8545240_wl_24.png ];
 
-			then rm 8545240_wl_24.png;
+	then rm 8545240_wl_24.png;
 		
-			fi
+	fi
 
-		wget http://tidesandcurrents.noaa.gov/ports/plots/8545240_wl_24.png
+	wget http://tidesandcurrents.noaa.gov/ports/plots/8545240_wl_24.png
 
-		fbi -noverbose -t 360 -1 8545240_wl_24.png
+	if [ $? -ne 0 ]
 
-		done
+	then exit
+
+	else fbi -noverbose -t 360 -1 8545240_wl_24.png
+
+	fi
+done
