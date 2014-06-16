@@ -1,0 +1,12 @@
+#!/bin/sh
+#/etc/init.d/tides
+
+case "$1" in
+    start)
+       echo "Starting NOAA Tides and Currents Graph"
+       /home/pi/td.sh
+       ;;
+
+esac
+
+exit 0
