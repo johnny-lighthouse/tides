@@ -51,6 +51,6 @@ def unpack_latest(api_data):
     return tuple([str( api_data[u'data'][0][u't']),float( api_data[u'data'][0][u'v'])])
 
 def unpack_full(api_data):
-     '''returns a list of all data points returned by api.
-        each data point is a dictionary.'''
+    '''returns a list of all data points returned by api.
+       each data point is a dictionary.'''
     return api_data[u'data']
