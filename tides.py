@@ -1,21 +1,43 @@
 import requests
 
-def set_querry(product,date,station='8545240',datum='mlw',units='english',tz='gmt',app='phillyrd.org',format='json'):
-    '''returns a dictionary suitable for calling api.
-    takes product type 'water_level' or 'predictions'
-    takes date of 'latest' or 'today' '''
+def set_querry(product='',date='',begin_date='',end_date='',range='',
+               station='8545240',datum='mlw',units='english',tz='gmt',
+               app='phillyrd.org',format='json'):
 
-    if date == 'latest' or date == 'today':
-        return {
-        'date':date,
+    '''returns a dictionary of parameters formated for calling api.
+    takes product 'water_level' or 'predictions'
+    takes date of 'latest' or 'today'
+    inputs are not sanitized '''
+
+    params = {
         'station':station,
         'product':product,
         'datum':datum,
         'units':units,
         'time_zone':tz,
         'application':app,
-        'format':format
-            }
+        'format':format}
+
+    if date != '' and (begin_date != '' or end_date != ''):
+        # something is wrong
+        return False
+
+    elif date == 'latest' or date == 'today':
+        params['date'] = date
+        return params
+
+    elif begin_date != '' and end_date != '' and range == '':
+        params['begin_date'] = begin_date
+        params['end_date'] = end_date
+        return params
+
+    elif range != '' and (begin_date != '' or end_date != '') and (begin_date == '' or end_date == ""):
+        # implement date + range selection
+        return True 
+
+    else:
+        return False
+
 
 api_url = 'http://tidesandcurrents.noaa.gov/api/datagetter'  
 
