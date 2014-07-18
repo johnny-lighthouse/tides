@@ -60,15 +60,37 @@ def unpack_full(api_data):
        each data point is a dictionary.'''
     return api_data[u'data']
 
-def enroll_data(api_dict):
+def enroll_data(api_dict,cursor):
     '''this takes a dictionary from noaa and enrolls the first data point into our db'''
     for i in range(len(api_dict[u'data'])):
-        cur.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",
-                                 [api_dict[u'data'][i][u't'],
-                                                          '',
-                                  api_dict[u'data'][i][u'v'],
-                                  api_dict[u'data'][i][u'f'],
-                                  api_dict[u'data'][i][u's'],
-                                  api_dict[u'data'][i][u'q']
-                                                           ] )
+        cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",
+                                    [api_dict[u'data'][i][u't'],
+                                                             '',
+                                     api_dict[u'data'][i][u'v'],
+                                     api_dict[u'data'][i][u'f'],
+                                     api_dict[u'data'][i][u's'],
+                                     api_dict[u'data'][i][u'q']
+                                                              ] )
     conn.commit()
+
+def format_data(api_dict):
+    '''take raw api return and format as if it came out of our db'''
+    list = []
+    for i in range(len(api_dict[u'data'])):
+        list.append(tuple([api_dict[u'data'][i][u't'],
+                                                  u'',
+                           api_dict[u'data'][i][u'v'],
+                           api_dict[u'data'][i][u'f'],
+                           api_dict[u'data'][i][u's'],
+                           api_dict[u'data'][i][u'q']
+                                                    ]))
+    return list
+
+def extract_data(cur):
+    '''this dumps all rows.  may not be practicle for production use but useful for testing.'''
+    cur.execute("SELECT * FROM tides")
+    return cur.fetchall()
+
+def get_and_store():
+    '''get measurements for today and insert into db.  mostly for convinience of manual testing'''
+    enroll_data(querry_api(set_querry('water_level','today')),cur)
