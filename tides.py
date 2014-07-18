@@ -60,14 +60,15 @@ def unpack_full(api_data):
        each data point is a dictionary.'''
     return api_data[u'data']
 
-def enroll_data(data):
+def enroll_data(api_dict):
     '''this takes a dictionary from noaa and enrolls the first data point into our db'''
-    cur.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",
-               [data[u'data'][0][u't'],
-                '',
-                data[u'data'][0][u'v'],
-                data[u'data'][0][u'f'],
-                data[u'data'][0][u's'],
-                data[u'data'][0][u'q']
-                         ] )
+    for i in range(len(api_dict[u'data'])):
+        cur.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",
+                                 [api_dict[u'data'][i][u't'],
+                                                          '',
+                                  api_dict[u'data'][i][u'v'],
+                                  api_dict[u'data'][i][u'f'],
+                                  api_dict[u'data'][i][u's'],
+                                  api_dict[u'data'][i][u'q']
+                                                           ] )
     conn.commit()
