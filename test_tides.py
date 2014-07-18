@@ -53,6 +53,9 @@ class Test_fetch(unittest.TestCase):
         for d in l:
             self.assertIs(type(d),dict)
 
+    def test_format_data(self):
+        self.assertEqual(tides.format_data(valid_api_data),valid_formated_data)
+
 class Test_storage(unittest.TestCase):
 
     def setUp(self):
@@ -69,11 +72,8 @@ class Test_storage(unittest.TestCase):
 
     def test_enroll(self):
         self.assertTrue(inspect.isfunction(tides.enroll_data))
-        tides.enroll_data(valid_api_data,self.cur)
-        self.assertEqual(tides.extract_data(self.cur),tides.format_data(valid_api_data))
-
-    def test_format_data(self):
-        self.assertEqual(tides.format_data(valid_api_data),valid_formated_data)
+        tides.enroll_data(valid_formated_data,self.cur,self.conn)
+        self.assertEqual(tides.extract_data(self.cur),valid_formated_data)
 
 if __name__ == '__main__':
     unittest.main()

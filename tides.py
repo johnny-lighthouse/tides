@@ -60,18 +60,11 @@ def unpack_full(api_data):
        each data point is a dictionary.'''
     return api_data[u'data']
 
-def enroll_data(api_dict,cursor):
-    '''this takes a dictionary from noaa and enrolls the first data point into our db'''
-    for i in range(len(api_dict[u'data'])):
-        cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",
-                                    [api_dict[u'data'][i][u't'],
-                                                             '',
-                                     api_dict[u'data'][i][u'v'],
-                                     api_dict[u'data'][i][u'f'],
-                                     api_dict[u'data'][i][u's'],
-                                     api_dict[u'data'][i][u'q']
-                                                              ] )
-    conn.commit()
+def enroll_data(data_list,cursor,connection):
+    '''this takes a list of pre-formated tuples of data and inserts each tuple in sequence into our db'''
+    for i in range(len(data_list)):
+        cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",data_list[i])
+    connection.commit()
 
 def format_data(api_dict):
     '''take raw api return and format as if it came out of our db'''
@@ -93,4 +86,4 @@ def extract_data(cur):
 
 def get_and_store():
     '''get measurements for today and insert into db.  mostly for convinience of manual testing'''
-    enroll_data(querry_api(set_querry('water_level','today')),cur)
+    enroll_data(format_data(querry_api(set_querry('water_level','today'))),cur,conn)
