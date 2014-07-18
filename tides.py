@@ -1,4 +1,9 @@
 import requests
+import sqlite3
+
+conn = sqlite3.connect(':memory:')
+cur = conn.cursor()
+cur.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
 
 def set_querry(product='',date='',begin_date='',end_date='',range='',
                station='8545240',datum='mlw',units='english',tz='gmt',
@@ -54,3 +59,15 @@ def unpack_full(api_data):
     '''returns a list of all data points returned by api.
        each data point is a dictionary.'''
     return api_data[u'data']
+
+def enroll_data(data):
+    '''this takes a dictionary from noaa and enrolls the first data point into our db'''
+    cur.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",
+               [data[u'data'][0][u't'],
+                '',
+                data[u'data'][0][u'v'],
+                data[u'data'][0][u'f'],
+                data[u'data'][0][u's'],
+                data[u'data'][0][u'q']
+                         ] )
+    conn.commit()
