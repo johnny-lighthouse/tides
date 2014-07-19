@@ -1,9 +1,15 @@
 import requests
 import sqlite3
 
-conn = sqlite3.connect(':memory:')
-cur = conn.cursor()
-cur.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
+def initiate_db():
+    connection = sqlite3.connect(':memory:')
+    cursor = connection.cursor()
+    cursor.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
+    cursor.execute("CREATE INDEX index_tides ON tides (time);")
+    cursor.execute("CREATE INDEX index_tides2 ON tides (q);")
+    return connection, cursor
+
+conn, cur = initiate_db()
 
 def set_querry(product='',date='',begin_date='',end_date='',range='',
                station='8545240',datum='mlw',units='english',tz='gmt',
@@ -49,7 +55,7 @@ api_url = 'http://tidesandcurrents.noaa.gov/api/datagetter'
 def querry_api(params):
     return requests.get(api_url,params=params).json()
 
-def enroll_data(formatted_data,cursor,connection):
+def enroll_data(formatted_data,connection,cursor):
     '''
     takes a list of pre-formated tuples of data and inserts each tuple in sequence into our db
     returns nothing
@@ -82,14 +88,14 @@ def extract_all_data(cursor):
     cursor.execute("SELECT * FROM tides")
     return cursor.fetchall()
 
-def get_and_store():
+def get_and_store(connection,cursor):
     '''
     get measurements for today and insert into db.
     '''
     parameters = set_querry('water_level','today')
     api_data = querry_api(parameters)
     formatted_data = format_data(api_data)
-    enroll_data(formatted_data,cur,conn)
+    enroll_data(formatted_data,connection,cursor)
 
     '''
     can also be stated as:

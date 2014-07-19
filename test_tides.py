@@ -65,7 +65,7 @@ class Test_storage(unittest.TestCase):
 
     def test_enroll(self):
         self.assertTrue(inspect.isfunction(tides.enroll_data))
-        tides.enroll_data(valid_formated_data,self.cur,self.conn)
+        tides.enroll_data(valid_formated_data,self.conn,self.cur)
         self.assertEqual(tides.extract_all_data(self.cur),valid_formated_data)
 
 if __name__ == '__main__':
