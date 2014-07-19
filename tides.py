@@ -75,19 +75,34 @@ def format_data(api_dict):
     we convert each data point into a tuple and return a list of tuples. some fields undergo type manipulations.
     '''
     datetime_format = "%Y-%m-%d %H:%M"
+    timestamp = prediction = measurement = f = s = q = None
     formatted_data = []
-    for i in range(len(api_dict[u'data'])):
 
-        list_key = api_dict[u'data'][i]
+    if u'data' in api_dict.keys():
+        for i in range(len(api_dict[u'data'])):
+            list_key = api_dict[u'data'][i]
 
-        timestamp = datetime.datetime.strptime(list_key[u't'],datetime_format)
-        prediction = None
-        value = float(list_key[u'v'])
-        f = list_key[u'f']
-        s = float(list_key[u's'])
-        q = list_key[u'q']
+            timestamp = datetime.datetime.strptime(list_key[u't'],datetime_format)
+            prediction = None
+            measurement = float(list_key[u'v'])
+            f = list_key[u'f']
+            s = float(list_key[u's'])
+            q = list_key[u'q']
 
-        formatted_data.append(tuple([timestamp,prediction,value,f,s,q]))
+            formatted_data.append(tuple([timestamp,prediction,measurement,f,s,q]))
+
+    elif u'predictions' in api_dict.keys():
+        for i in range(len(api_dict[u'predictions'])):
+            list_key = api_dict[u'predictions'][i]
+
+            timestamp = datetime.datetime.strptime(list_key[u't'],datetime_format)
+            prediction = float(list_key[u'v'])
+            measurement = None
+            f = None
+            s = None
+            q = None
+
+            formatted_data.append(tuple([timestamp,prediction,measurement,f,s,q]))
 
     return formatted_data
 
@@ -107,5 +122,5 @@ def get_and_store(connection,cursor):
 
     '''
     can also be stated as:
-    enroll_data(format_data(querry_api(set_querry('water_level','today'))),con,cur)
+    enroll_data(format_data(querry_api(set_querry('water_level','recent'))),con,cur)
     '''
