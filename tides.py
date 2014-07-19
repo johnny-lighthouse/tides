@@ -60,7 +60,7 @@ def enroll_data(formatted_data,connection,cursor):
     '''
     for i in range(len(formatted_data)):
         cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data[i])
-        connection.commit()
+    connection.commit()
 
 def format_data(api_dict):
     '''
@@ -90,12 +90,12 @@ def get_and_store(connection,cursor):
     '''
     get measurements for today and insert into db.
     '''
-    parameters = set_querry('water_level','today')
+    parameters = set_querry('water_level','recent')
     api_data = querry_api(parameters)
     formatted_data = format_data(api_data)
     enroll_data(formatted_data,connection,cursor)
 
     '''
     can also be stated as:
-    enroll_data(format_data(querry_api(set_querry('water_level','today'))),cur,conn)
+    enroll_data(format_data(querry_api(set_querry('water_level','today'))),con,cur)
     '''
