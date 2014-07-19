@@ -1,5 +1,6 @@
 import requests
 import sqlite3
+import datetime
 
 def initiate_db():
     connection = sqlite3.connect(':memory:')
@@ -65,20 +66,25 @@ def enroll_data(formatted_data,connection,cursor):
 def format_data(api_dict):
     '''
     take raw api return and format for storage in our db
-    input is dictionary with keys 'data' and 'metadata'
-    value for key 'data' is a list containing one or more dictionaries
-    each of these 'data' dictionaries represent one data point
-    we convert each data point into a tuple and return a list of tuples.
+    input is dictionary with keys 'data' and 'metadata'.  we are only interested in 'data'
+    value for key 'data' is a list containing one or more dictionaries, each of these 'data' dictionaries represent one data point
+    we convert each data point into a tuple and return a list of tuples. some fields undergo type manipulations.
     '''
+    datetime_format = "%Y-%m-%d %H:%M"
     formatted_data = []
     for i in range(len(api_dict[u'data'])):
-        formatted_data.append(tuple([api_dict[u'data'][i][u't'],
-                                                           None,
-                                     api_dict[u'data'][i][u'v'],
-                                     api_dict[u'data'][i][u'f'],
-                                     api_dict[u'data'][i][u's'],
-                                     api_dict[u'data'][i][u'q']
-                                                              ]))
+
+        list_key = api_dict[u'data'][i]
+
+        timestamp = datetime.datetime.strptime(list_key[u't'],datetime_format)
+        prediction = None
+        value = float(list_key[u'v'])
+        f = list_key[u'f']
+        s = list_key[u's']
+        q = list_key[u'q']
+
+        formatted_data.append(tuple([timestamp,prediction,value,f,s,q]))
+
     return formatted_data
 
 def extract_all_data(cursor):
