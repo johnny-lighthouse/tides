@@ -69,18 +69,18 @@ def format_data(api_dict):
     formatted_data = []
     for i in range(len(api_dict[u'data'])):
         formatted_data.append(tuple([api_dict[u'data'][i][u't'],
-                                                           u'',
-                                    api_dict[u'data'][i][u'v'],
-                                    api_dict[u'data'][i][u'f'],
-                                    api_dict[u'data'][i][u's'],
-                                    api_dict[u'data'][i][u'q']
-                                                             ]))
+                                                           None,
+                                     api_dict[u'data'][i][u'v'],
+                                     api_dict[u'data'][i][u'f'],
+                                     api_dict[u'data'][i][u's'],
+                                     api_dict[u'data'][i][u'q']
+                                                              ]))
     return formatted_data
 
-def extract_data(cur):
+def extract_all_data(cursor):
     '''this dumps all rows.  may not be practicle for production use but useful for testing.'''
-    cur.execute("SELECT * FROM tides")
-    return cur.fetchall()
+    cursor.execute("SELECT * FROM tides")
+    return cursor.fetchall()
 
 def get_and_store():
     '''
