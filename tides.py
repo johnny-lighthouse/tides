@@ -84,7 +84,7 @@ def format_data(api_dict):
         prediction = None
         value = float(list_key[u'v'])
         f = list_key[u'f']
-        s = list_key[u's']
+        s = float(list_key[u's'])
         q = list_key[u'q']
 
         formatted_data.append(tuple([timestamp,prediction,value,f,s,q]))
