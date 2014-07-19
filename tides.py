@@ -8,12 +8,12 @@ cur.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
 def set_querry(product='',date='',begin_date='',end_date='',range='',
                station='8545240',datum='mlw',units='english',tz='gmt',
                app='phillyrd.org',format='json'):
-
-    '''returns a dictionary of parameters formated for calling api.
+    '''
+    returns a dictionary of parameters formated for calling noaa api.
     takes product 'water_level' or 'predictions'
-    takes date of 'latest' or 'today'
-    inputs are not sanitized '''
-
+    takes either date of 'latest' or 'today' or begin and end dates
+    inputs are not sanitized
+    '''
     params = {
         'station':station,
         'product':product,
@@ -49,35 +49,33 @@ api_url = 'http://tidesandcurrents.noaa.gov/api/datagetter'
 def querry_api(params):
     return requests.get(api_url,params=params).json()
 
-def unpack_latest(api_data):
-    # latest data from noaa should be a dictionary with keys 'data' and 'metadata'.
-    # data value is a list with one item which is another dictionary with unicode values.
-    # for now we're only interested in t and v keys which are the timestamp and the tide height.
-    return tuple([str( api_data[u'data'][0][u't']),float( api_data[u'data'][0][u'v'])])
-
-def unpack_full(api_data):
-    '''returns a list of all data points returned by api.
-       each data point is a dictionary.'''
-    return api_data[u'data']
-
-def enroll_data(data_list,cursor,connection):
-    '''this takes a list of pre-formated tuples of data and inserts each tuple in sequence into our db'''
-    for i in range(len(data_list)):
-        cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",data_list[i])
+def enroll_data(formatted_data,cursor,connection):
+    '''
+    takes a list of pre-formated tuples of data and inserts each tuple in sequence into our db
+    returns nothing
+    '''
+    for i in range(len(formatted_data)):
+        cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data[i])
     connection.commit()
 
 def format_data(api_dict):
-    '''take raw api return and format as if it came out of our db'''
-    list = []
+    '''
+    take raw api return and format for storage in our db
+    input is dictionary with keys 'data' and 'metadata'
+    value for key 'data' is a list containing one or more dictionaries
+    each of these 'data' dictionaries represent one data point
+    we convert each data point into a tuple and return a list of tuples.
+    '''
+    formatted_data = []
     for i in range(len(api_dict[u'data'])):
-        list.append(tuple([api_dict[u'data'][i][u't'],
-                                                  u'',
-                           api_dict[u'data'][i][u'v'],
-                           api_dict[u'data'][i][u'f'],
-                           api_dict[u'data'][i][u's'],
-                           api_dict[u'data'][i][u'q']
-                                                    ]))
-    return list
+        formatted_data.append(tuple([api_dict[u'data'][i][u't'],
+                                                           u'',
+                                    api_dict[u'data'][i][u'v'],
+                                    api_dict[u'data'][i][u'f'],
+                                    api_dict[u'data'][i][u's'],
+                                    api_dict[u'data'][i][u'q']
+                                                             ]))
+    return formatted_data
 
 def extract_data(cur):
     '''this dumps all rows.  may not be practicle for production use but useful for testing.'''

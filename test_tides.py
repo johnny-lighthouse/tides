@@ -46,13 +46,6 @@ class Test_fetch(unittest.TestCase):
     def test_url(self):
         self.assertEqual(tides.api_url,'http://tidesandcurrents.noaa.gov/api/datagetter')
 
-    def test_unpack_full(self):
-        self.assertTrue(inspect.isfunction(tides.unpack_full))
-        l = tides.unpack_full(valid_api_data)
-        self.assertIs(type(l),list)
-        for d in l:
-            self.assertIs(type(d),dict)
-
     def test_format_data(self):
         self.assertEqual(tides.format_data(valid_api_data),valid_formated_data)
 
