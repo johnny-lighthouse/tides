@@ -5,7 +5,7 @@ import datetime
 def initiate_db():
     connection = sqlite3.connect(':memory:', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE tides(time timestamp,prediction,measurment,f,s,q)")
+    cursor.execute("CREATE TABLE tides(time timestamp PRIMARY KEY,prediction,measurment,f,s,q)")
     cursor.execute("CREATE INDEX index_tides ON tides (time);")
     cursor.execute("CREATE INDEX index_tides2 ON tides (q);")
     return connection, cursor
