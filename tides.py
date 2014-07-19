@@ -83,5 +83,15 @@ def extract_data(cur):
     return cur.fetchall()
 
 def get_and_store():
-    '''get measurements for today and insert into db.  mostly for convinience of manual testing'''
+    '''
+    get measurements for today and insert into db.
+    '''
+    parameters = set_querry('water_level','today')
+    api_data = querry_api(parameters)
+    formatted_data = format_data(api_data)
+    enroll_data(formatted_data,cur,conn)
+
+    '''
+    can also be stated as:
     enroll_data(format_data(querry_api(set_querry('water_level','today'))),cur,conn)
+    '''
