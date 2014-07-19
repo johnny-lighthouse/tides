@@ -3,9 +3,9 @@ import sqlite3
 import datetime
 
 def initiate_db():
-    connection = sqlite3.connect(':memory:')
+    connection = sqlite3.connect(':memory:', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
+    cursor.execute("CREATE TABLE tides(time timestamp,prediction,measurment,f,s,q)")
     cursor.execute("CREATE INDEX index_tides ON tides (time);")
     cursor.execute("CREATE INDEX index_tides2 ON tides (q);")
     return connection, cursor
@@ -59,9 +59,13 @@ def enroll_data(formatted_data,connection,cursor):
     takes a list of pre-formated tuples of data and inserts each tuple in sequence into our db
     returns nothing
     '''
+    # this works but is much slower than for loop? at least for recent querry with ~720 records.
+    # cursor.executemany("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data)
+
     for i in range(len(formatted_data)):
         cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data[i])
     connection.commit()
+
 
 def format_data(api_dict):
     '''
