@@ -57,11 +57,10 @@ class Test_storage(unittest.TestCase):
         self.cur.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
         pass
 
-    def test_conn(self):
-        self.assertIs(type(tides.conn),tides.sqlite3.Connection)
-
-    def test_cur(self):
-        self.assertIs(type(tides.cur),tides.sqlite3.Cursor)
+    def test_initiate_db(self):
+        a,b = tides.initiate_db()
+        self.assertIs(type(a),tides.sqlite3.Connection)
+        self.assertIs(type(b),tides.sqlite3.Cursor)
 
     def test_enroll(self):
         self.assertTrue(inspect.isfunction(tides.enroll_data))

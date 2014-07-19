@@ -9,8 +9,6 @@ def initiate_db():
     cursor.execute("CREATE INDEX index_tides2 ON tides (q);")
     return connection, cursor
 
-conn, cur = initiate_db()
-
 def set_querry(product='',date='',begin_date='',end_date='',range='',
                station='8545240',datum='mlw',units='english',tz='gmt',
                app='phillyrd.org',format='json'):
