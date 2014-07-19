@@ -31,7 +31,7 @@ def set_querry(product='',date='',begin_date='',end_date='',range='',
         # something is wrong
         return False
 
-    elif date == 'latest' or date == 'today':
+    elif date == 'latest' or date == 'today' or date == 'recent':
         params['date'] = date
         return params
 
@@ -60,7 +60,7 @@ def enroll_data(formatted_data,connection,cursor):
     '''
     for i in range(len(formatted_data)):
         cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data[i])
-    connection.commit()
+        connection.commit()
 
 def format_data(api_dict):
     '''
