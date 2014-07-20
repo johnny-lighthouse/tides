@@ -5,7 +5,7 @@ import datetime
 def initiate_db():
     connection = sqlite3.connect(':memory:', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE tides(time timestamp PRIMARY KEY,prediction number ,measurment number,f,s,q)")
+    cursor.execute("CREATE TABLE tides(time timestamp PRIMARY KEY,prediction number ,measurement number,f,s,q)")
     cursor.execute("CREATE INDEX index_tides ON tides (time);")
     cursor.execute("CREATE INDEX index_tides2 ON tides (q);")
     return connection, cursor
@@ -63,7 +63,26 @@ def enroll_data(formatted_data,connection,cursor):
     # cursor.executemany("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data)
 
     for i in range(len(formatted_data)):
-        cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data[i])
+        cursor.execute('''SELECT time, prediction, measurement FROM tides WHERE time=?''', (formatted_data[i][0],))
+        prior_data = cursor.fetchall()
+        if len(prior_data) == 1:
+            #record exists so check to see if we can add anything with an update
+            if formatted_data[i][1] != prior_data[0][1] and formatted_data[i][1] != None:
+                cursor.execute('''UPDATE tides SET prediction = ? WHERE time = ?''',(formatted_data[i][1],prior_data[0][0]))
+            else: pass
+
+            if formatted_data[i][2] != prior_data[0][2] and formatted_data[i][2] != None: 
+                cursor.execute('''UPDATE tides SET  measurement= ? WHERE time = ?''',(formatted_data[i][2],prior_data[0][0]))
+            else: pass
+
+            # need to check if last three fields can be updated too in case of a measurement following a prediction entry
+
+        elif len(prior_data) > 1:
+            #something is very wrong, col time should be the key and values should be unique
+            pass
+        elif len(prior_data) == 0:
+            #new data so go ahead and enroll
+            cursor.execute("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data[i])
     connection.commit()
 
 
