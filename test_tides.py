@@ -54,7 +54,7 @@ class Test_storage(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(':memory:')
         self.cur = self.conn.cursor()
-        self.cur.execute("CREATE TABLE tides(time,prediction,measurment,f,s,q)")
+        self.cur.execute("CREATE TABLE tides(time,prediction,measurement,f,s,q)")
         pass
 
     def test_initiate_db(self):
