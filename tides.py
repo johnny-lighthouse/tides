@@ -5,7 +5,7 @@ import datetime
 def initiate_db():
     connection = sqlite3.connect(':memory:', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE tides(time timestamp PRIMARY KEY,prediction number ,measurement number,f,s,q)")
+    cursor.execute("CREATE TABLE tides(time timestamp PRIMARY KEY,prediction number ,measurement number,f,s number,q)")
     cursor.execute("CREATE INDEX index_tides ON tides (time);")
     cursor.execute("CREATE INDEX index_tides2 ON tides (q);")
     return connection, cursor
@@ -63,16 +63,16 @@ def enroll_data(formatted_data,connection,cursor):
     # cursor.executemany("INSERT INTO tides VALUES (?,?,?,?,?,?)",formatted_data)
 
     for i in range(len(formatted_data)):
-        field = time, prediction, measurement, f, s, q
+        field = 'time', 'prediction', 'measurement', 'f', 's', 'q'
         timestamp = formatted_data[i][0]
-        cursor.execute('''SELECT time, prediction, measurement FROM tides WHERE time=?''', (timestamp,))
+        cursor.execute('''SELECT ?, ?, ? FROM tides WHERE time=?''', (field[0],field[1],field[2],timestamp))
         prior_data = cursor.fetchall()
 
         if len(prior_data) == 1:
             #record exists so check to see if we have anything new to add
-            for n in range(1,len(prior_data[0]):
+            for n in range(1,len(prior_data[0])):
                 if formatted_data[i][n] != prior_data[0][n] and formatted_data[i][n] != None:
-                    cursor.execute('''UPDATE tides SET ? = ? WHERE time = ?''',(field[n],formatted_data[i][n],timestamp))
+                    cursor.execute('''UPDATE tides SET ? = ? WHERE ? = ?''',(field[n],formatted_data[i][n],field[0],timestamp))
                 else: pass
 
         elif len(prior_data) == 0:
@@ -83,6 +83,11 @@ def enroll_data(formatted_data,connection,cursor):
             pass
     connection.commit()
 
+def float_or_none(string):
+    if string == u'':
+        return None
+    else:
+        return float(string)
 
 def format_data(api_dict):
     '''
@@ -92,7 +97,7 @@ def format_data(api_dict):
     we convert each data point into a tuple and return a list of tuples. some fields undergo type manipulations.
     '''
     datetime_format = "%Y-%m-%d %H:%M"
-    timestamp = prediction = measurement = f = s = q = None
+#    timestamp = prediction = measurement = f = s = q = None
     formatted_data = []
 
     if u'data' in api_dict.keys():
@@ -101,9 +106,9 @@ def format_data(api_dict):
 
             timestamp = datetime.datetime.strptime(list_key[u't'],datetime_format)
             prediction = None
-            measurement = float(list_key[u'v'])
+            measurement = float_or_none(list_key[u'v'])
             f = list_key[u'f']
-            s = float(list_key[u's'])
+            s = float_or_none(list_key[u's'])
             q = list_key[u'q']
 
             formatted_data.append(tuple([timestamp,prediction,measurement,f,s,q]))
@@ -113,7 +118,7 @@ def format_data(api_dict):
             list_key = api_dict[u'predictions'][i]
 
             timestamp = datetime.datetime.strptime(list_key[u't'],datetime_format)
-            prediction = float(list_key[u'v'])
+            prediction = float_or_none(list_key[u'v'])
             measurement = None
             f = None
             s = None
@@ -124,7 +129,7 @@ def format_data(api_dict):
     return formatted_data
 
 def extract_all_data(cursor):
-    '''this dumps all rows.  may not be practicle for production use but useful for testing.'''
+    '''this dumps all rows.  may not be practical for production use but useful for testing.'''
     cursor.execute("SELECT * FROM tides")
     return cursor.fetchall()
 
