@@ -2,13 +2,20 @@ import unittest
 import tides
 import inspect
 import sqlite3
+import datetime
 
 valid_api_data = {u'data': [{u'q': u'p', u's': u'0.013', u'f': u'1,0,0,0', u't': u'2014-07-17 22:12', u'v': u'6.575'}
                            ,{u'q': u'p', u's': u'0.020', u'f': u'1,0,0,0', u't': u'2014-07-17 23:18', u'v': u'6.611'}],
                u'metadata': {u'lat': u'39.9333', u'lon': u'-75.1417', u'id': u'8545240', u'name': u'Philadelphia'}}
 
-valid_formated_data = [(u'2014-07-17 22:12', None, u'6.575', u'1,0,0,0', u'0.013', u'p'),
-                       (u'2014-07-17 23:18', None, u'6.611', u'1,0,0,0', u'0.020', u'p')]
+bad_s_data = {u'data': [{u'q': u'p', u's': u'0.013', u'f': u'1,0,0,0', u't': u'2014-07-17 22:12', u'v': u'6.575'}
+                       ,{u'q': u'p', u's': u'', u'f': u'1,0,0,0', u't': u'2014-07-17 23:18', u'v': u'6.611'}],
+           u'metadata': {u'lat': u'39.9333', u'lon': u'-75.1417', u'id': u'8545240', u'name': u'Philadelphia'}}
+
+
+valid_formated_data = [(datetime.datetime(2014, 7, 17, 22, 12), None, 6.575, u'1,0,0,0', 0.013, u'p'),
+                       (datetime.datetime(2014, 7, 17, 23, 18), None, 6.611, u'1,0,0,0', 0.02, u'p')]
+
 
 class Test_fetch(unittest.TestCase):
 
@@ -48,13 +55,15 @@ class Test_fetch(unittest.TestCase):
 
     def test_format_data(self):
         self.assertEqual(tides.format_data(valid_api_data),valid_formated_data)
+        self.assertIs(type(tides.format_data(bad_s_data)[1][4]),type(None))
 
 class Test_storage(unittest.TestCase):
 
     def setUp(self):
-        self.conn = sqlite3.connect(':memory:')
+        sql_create = "CREATE TABLE tides(time timestamp PRIMARY KEY,prediction number ,measurement number,f,s number,q)"
+        self.conn = sqlite3.connect(':memory:',detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.cur = self.conn.cursor()
-        self.cur.execute("CREATE TABLE tides(time,prediction,measurement,f,s,q)")
+        self.cur.execute(sql_create)
         pass
 
     def test_initiate_db(self):

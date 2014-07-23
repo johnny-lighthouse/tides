@@ -84,7 +84,7 @@ def enroll_data(formatted_data,connection,cursor):
     connection.commit()
 
 def float_or_none(string):
-    if string == u'':
+    if string is u'':
         return None
     else:
         return float(string)
